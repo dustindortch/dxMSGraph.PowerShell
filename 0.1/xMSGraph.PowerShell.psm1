@@ -7,14 +7,14 @@ $Script:PowerShellClientId = "1950a258-227b-4e31-a9cf-717495945fc2"
 $Script:ResourceId = "https://graph.microsoft.com"
 $Script:RedirectUri = "urn:ietf:wg:oauth:2.0:oob"
 
-Import-Module Microsoft.ADAL.PowerShell # Install-Module Microsoft.ADAL.PowerShell
+# Auto loading of module # Import-Module Microsoft.ADAL.PowerShell # Install-Module Microsoft.ADAL.PowerShell
 
 function _temp{[CmdletBinding(SupportsShouldProcess)] param() Write-Verbose "Temporary function to build list of parameters established for Advanced Functions."}
 $Script:DefaultParams = (Get-Command _temp | Select-Object -ExpandProperty parameters).Keys
 #Remove-Item function:\_temp
 
 # Connect-Graph
-function Connect-
+function Connect-Graph
 {
     <#
     .SYNOPSIS
@@ -49,11 +49,11 @@ function Connect-
             -RedirectUri $Script:RedirectUri `
             -ForcePromptSignIn
         $Script:AuthHeader = "Bearer {0}" -f $Token
-        $Applications = Get-Query -Query "applications" -GraphVersion beta -Filter "displayName eq 'Tenant Schema Extension App'"
+        $Applications = Get-GraphQuery -Query "applications" -GraphVersion beta -Filter "displayName eq 'Tenant Schema Extension App'"
         if ($Applications)
         {
             $Script:ExtensionGuid = $Applications.id
-            $Script:CustomAttributes = Get-Query -Query "applications/$(Get-AppId)/extensionProperties" -GraphVersion beta
+            $Script:CustomAttributes = Get-GraphQuery -Query "applications/$(Get-GraphAppId)/extensionProperties" -GraphVersion beta
         }
     }
     End
@@ -61,7 +61,7 @@ function Connect-
     }
 }
 
-function Get-Query
+function Get-GraphQuery
 {
     <#
     .SYNOPSIS
@@ -148,7 +148,7 @@ function Get-Query
     }
 }
 
-function Get-User
+function Get-GraphUser
 {
 
     <#
@@ -178,7 +178,7 @@ function Get-User
             $Script:CustomAttributes | Where-Object {$_.targetObjects -Contains "User"} | ForEach-Object {
                 $Type = [System.Type]"$($_.dataType)"
                 $FullName = $_.Name
-                $FriendlyName = $FullName.Replace("extension_$(Get-AppId -Trim)_","")
+                $FriendlyName = $FullName.Replace("extension_$(Get-GraphAppId -Trim)_","")
                 $UserAttribute = New-Object System.Management.Automation.ParameterAttribute
                 $UserAttribute.Mandatory = $false
                 $UserAttributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
@@ -210,14 +210,14 @@ function Get-User
             {
                 Write-Verbose "ADDING ATTRIBUTE KEY: ${Key}"
                 if ($Filter) {$Filter += " and "}
-                $Filter += "{0} eq '{1}'" -f "extension_$(Get-AppId -Trim)_${Key}",$PSBoundParameters.($Key)
+                $Filter += "{0} eq '{1}'" -f "extension_$(Get-GraphAppId -Trim)_${Key}",$PSBoundParameters.($Key)
                 Write-Verbose "ADDING ATTRIBUTE VALUE: ${PSBoundParameters.($Key)}"
             }
         }
     }
     Process
     {
-        $Users = Get-Query -Query $Query -Filter $Filter -Raw
+        $Users = Get-GraphQuery -Query $Query -Filter $Filter -Raw
     }
     End
     {
@@ -230,7 +230,7 @@ function Get-User
     }
 }
 
-function Get-AppId
+function Get-GraphAppId
 {
     Param(
         [switch]$Trim

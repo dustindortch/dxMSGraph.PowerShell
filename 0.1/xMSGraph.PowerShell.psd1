@@ -12,7 +12,7 @@
     VariablesToExport = "*"
     AliasesToExport = "*"
     ModuleList = @("xMSGraph.PowerShell")
-    DefaultCommandPrefix = 'Graph'
+    DefaultCommandPrefix = ''
     FileList = @("xMSGraph.PowerShell.psd1","xMSGraph.PowerShell.psm1")
     PrivateData = @{
         PSData = @{
