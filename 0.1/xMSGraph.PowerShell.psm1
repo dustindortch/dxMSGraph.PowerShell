@@ -122,7 +122,7 @@ function Get-GraphQuery
         $Uri = "{0}/{1}/{2}"
         if($Filter -or $Select -or $Expand)
         {
-            $QueryString = [System.Net.WebUtility](($Filter,$Select,$Expand) -join "&")
+            $QueryString = [System.Net.WebUtility]::UrlEncode(($Filter,$Select,$Expand) -join "&")
             Write-Verbose "QUERY STRING: ${QueryString}"
             $Uri += "?{3}"
         }
