@@ -121,11 +121,9 @@ function Get-GraphQuery
     {
         $Uri = "{0}/{1}/{2}"
         $Criteria = $null
-        if ($Filter) {$Criteria = "`$filter={0}" -f $([uri]::EscapeDataString($Filter))}
-        if ($Select) {$Criteria += "`$select={0}" -f $([uri]::EscapeDataString($Select))}
-        if ($Expand) {$Criteria += "`$expand={0}" -f $([uri]::EscapeDataString($Expand))}
-        if($Criteria)
+        if($Filter -or $Select -or $Expand)
         {
+            $Criteria = [System.Net.WebUtility](($Filter,$Select,$Expand) -join "&")
             Write-Verbose "QUERY STRING: ${Criteria}"
             $Uri += "?{3}"
         }
