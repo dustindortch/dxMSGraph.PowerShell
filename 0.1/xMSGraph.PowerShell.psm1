@@ -120,11 +120,10 @@ function Get-GraphQuery
     Begin
     {
         $Uri = "{0}/{1}/{2}"
-        $Criteria = $null
         if($Filter -or $Select -or $Expand)
         {
-            $Criteria = [System.Net.WebUtility](($Filter,$Select,$Expand) -join "&")
-            Write-Verbose "QUERY STRING: ${Criteria}"
+            $QueryString = [System.Net.WebUtility](($Filter,$Select,$Expand) -join "&")
+            Write-Verbose "QUERY STRING: ${QueryString}"
             $Uri += "?{3}"
         }
     }
@@ -133,7 +132,7 @@ function Get-GraphQuery
         $Result = Invoke-RestMethod -Method Get -Header @{
             Authorization = $Script:AuthHeader
             'Content-Type' = "application/json"
-        } -Uri ($Uri -f $Script:ResourceId, $GraphVersion, $Query, $Criteria)
+        } -Uri ($Uri -f $Script:ResourceId, $GraphVersion, $Query, $QueryString)
     }
     End
     {
