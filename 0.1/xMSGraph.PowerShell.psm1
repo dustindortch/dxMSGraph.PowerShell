@@ -220,15 +220,31 @@ function Get-GraphUser
     Process
     {
         $Users = Get-GraphQuery -Query $Query -GraphVersion beta -Filter $Filter -Raw
+        if (!$UserPrincipalName)
+        {
+            $Users = $Users.Value
+        }
+        if ($Script:ExtensionGuid)
+        {
+            ForEach ($User in $Users) {
+                $User | ForEach-Object {
+                    $Properties = $_
+                    ForEach ($Property in $_.PSObject.Properties) {
+                        if ($Property.Name -like "extension_$(Get-GraphAppId -Trim)_*")
+                        {
+                            $User | Add-Member `
+                                -NotePropertyName ($Property.Name).Replace("extension_$(Get-GraphAppId -Trim)_","") `
+                                -NotePropertyValue $Property.Value
+                        }
+                    }
+                }
+            }
+        $Users = $Users | Select-Object * -ExcludeProperty "extension_$(Get-GraphAppId -Trim)_*"
+        }
     }
     End
     {
-        if ($UserPrincipalName)
-        {
-            Return $Users
-        } else {
-            Return $Users.Value
-        }
+        Return $Users
     }
 }
 
