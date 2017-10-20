@@ -232,9 +232,11 @@ function Get-GraphUser
                     ForEach ($Property in $_.PSObject.Properties) {
                         if ($Property.Name -like "extension_$(Get-GraphAppId -Trim)_*")
                         {
+                            $FriendlyName = ($Property.Name).Replace("extension_$(Get-GraphAppId -Trim)_","")
                             $User | Add-Member `
-                                -NotePropertyName ($Property.Name).Replace("extension_$(Get-GraphAppId -Trim)_","") `
+                                -NotePropertyName $FriendlyName `
                                 -NotePropertyValue $Property.Value
+                            Write-Verbose "RENAMING PROPERTY: $($Property.Name) to $($FriendlyName)"
                         }
                     }
                 }
