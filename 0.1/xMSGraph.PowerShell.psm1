@@ -7,11 +7,11 @@ $Script:PowerShellClientId = "1950a258-227b-4e31-a9cf-717495945fc2"
 $Script:ResourceId = "https://graph.microsoft.com"
 $Script:RedirectUri = "urn:ietf:wg:oauth:2.0:oob"
 
-# Auto loading of module # Import-Module Microsoft.ADAL.PowerShell # Install-Module Microsoft.ADAL.PowerShell
+#Import-Module Microsoft.ADAL.PowerShell # Install-Module Microsoft.ADAL.PowerShell
 
 function _temp{[CmdletBinding(SupportsShouldProcess)] param() Write-Verbose "Temporary function to build list of parameters established for Advanced Functions."}
 $Script:DefaultParams = (Get-Command _temp | Select-Object -ExpandProperty parameters).Keys
-#Remove-Item function:\_temp
+Remove-Item function:\_temp
 
 # Connect-Graph
 function Connect-Graph
@@ -122,7 +122,10 @@ function Get-GraphQuery
         $Uri = "{0}/{1}/{2}"
         if($Filter -or $Select -or $Expand)
         {
-            $QueryString = [System.Net.WebUtility]::UrlEncode(($Filter,$Select,$Expand) -join "&")
+            if ($Filter) {$Filter = "`$filter={0}" -f [System.Net.WebUtility]::UrlEncode($Filter)}
+            if ($Select) {$Select = "`$select={0}" -f [System.Net.WebUtility]::UrlEncode($Select)}
+            if ($Expand) {$Expand = "`$expand={0}" -f [System.Net.WebUtility]::UrlEncode($Expand)}
+            $QueryString = (($Filter,$Select,$Expand -ne $null) -join "&")
             Write-Verbose "QUERY STRING: ${QueryString}"
             $Uri += "?{3}"
         }
@@ -153,6 +156,8 @@ function Get-GraphUser
         Get Microsoft Graph users
     .DESCRIPTION
         Get Microsoft Graph users and attributes
+
+        Works with custom attribute synchronization configured with Azure AD Connect
     .EXAMPLE
         Get-GraphUser [-UserPrincipal <UserPrincipalName>]
     .INPUTS
@@ -214,7 +219,7 @@ function Get-GraphUser
     }
     Process
     {
-        $Users = Get-GraphQuery -Query $Query -Filter $Filter -Raw
+        $Users = Get-GraphQuery -Query $Query -GraphVersion beta -Filter $Filter -Raw
     }
     End
     {
