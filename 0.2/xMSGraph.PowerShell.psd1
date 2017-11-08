@@ -1,6 +1,6 @@
 @{
     RootModule = 'xMSGraph.PowerShell.psm1'
-    ModuleVersion = '0.1'
+    ModuleVersion = '0.2'
     Author = 'Dustin Dortch'
     Description = 'Microsoft Graph API module for PowerShell'
     PowerShellVersion = '5.0'
